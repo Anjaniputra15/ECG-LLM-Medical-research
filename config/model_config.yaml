@@ -9,9 +9,9 @@ base_models:
     temperature: 0.1
     top_p: 0.95
     
-  claude-3:
-    provider: "anthropic"
-    model_name: "claude-3-opus-20240229"
+  gemini-1.5-flash:
+    provider: "google"
+    model_name: "gemini-1.5-flash"
     max_tokens: 4096
     temperature: 0.1
     
