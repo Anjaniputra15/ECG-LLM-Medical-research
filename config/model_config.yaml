@@ -1,0 +1,130 @@
+# Model-specific configurations
+
+# Base LLM Models
+base_models:
+  gpt-4:
+    provider: "openai"
+    model_name: "gpt-4"
+    max_tokens: 8192
+    temperature: 0.1
+    top_p: 0.95
+    
+  claude-3:
+    provider: "anthropic"
+    model_name: "claude-3-opus-20240229"
+    max_tokens: 4096
+    temperature: 0.1
+    
+  gemini-pro:
+    provider: "google"
+    model_name: "gemini-pro"
+    max_tokens: 2048
+    temperature: 0.1
+
+# Fine-tuning configurations
+fine_tuning:
+  # LoRA settings
+  lora:
+    r: 16
+    alpha: 32
+    dropout: 0.1
+    target_modules: ["q_proj", "v_proj"]
+    
+  # Training parameters
+  training:
+    learning_rate: 5e-5
+    batch_size: 16
+    gradient_accumulation_steps: 4
+    warmup_steps: 500
+    weight_decay: 0.01
+    adam_epsilon: 1e-8
+    
+  # Evaluation during training
+  evaluation:
+    strategy: "steps"
+    steps: 100
+    save_steps: 500
+    logging_steps: 10
+
+# Prompt templates
+prompts:
+  diagnosis:
+    system: |
+      You are a medical AI assistant specialized in ECG analysis and cardiovascular diagnosis.
+      Analyze the provided ECG data and provide a comprehensive medical assessment.
+      
+      Your response should include:
+      1. Primary diagnosis
+      2. Confidence level (0-100%)
+      3. Key findings that support the diagnosis
+      4. Recommended follow-up actions
+      5. Differential diagnoses to consider
+      
+      Always prioritize patient safety and recommend consulting with a cardiologist for complex cases.
+    
+    user_template: |
+      Patient ECG Analysis Request:
+      
+      ECG Data: {ecg_text}
+      
+      Patient Information:
+      - Age: {age}
+      - Gender: {gender}
+      - Symptoms: {symptoms}
+      
+      Additional Context: {context}
+      
+      Please provide a detailed analysis of this ECG.
+      
+  explanation:
+    system: |
+      You are a medical educator explaining ECG findings to healthcare professionals.
+      Provide clear, educational explanations of ECG patterns and their clinical significance.
+      
+    user_template: |
+      Please explain the following ECG findings in detail:
+      
+      ECG Data: {ecg_text}
+      
+      Focus on:
+      1. Waveform morphology
+      2. Rhythm analysis
+      3. Interval measurements
+      4. Clinical correlations
+      
+  research:
+    system: |
+      You are a cardiovascular research assistant helping with ECG pattern analysis.
+      Provide objective, research-oriented analysis suitable for academic publication.
+      
+    user_template: |
+      Research Analysis Request:
+      
+      ECG Data: {ecg_text}
+      
+      Research Question: {research_question}
+      
+      Please provide a detailed analysis focusing on the research objectives.
+
+# Model-specific settings
+model_settings:
+  # Token limits for different components
+  tokens:
+    ecg_encoding: 2000
+    context: 1000
+    response: 1000
+    system_prompt: 500
+    
+  # Generation parameters
+  generation:
+    do_sample: true
+    num_beams: 1
+    early_stopping: false
+    pad_token_id: 0
+    eos_token_id: 2
+    
+  # Safety settings
+  safety:
+    content_filter: true
+    medical_disclaimer: true
+    confidence_threshold: 0.7

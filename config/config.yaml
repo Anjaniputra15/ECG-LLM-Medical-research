@@ -1,0 +1,122 @@
+# ECG-LLM Configuration
+
+# Data Configuration
+data:
+  raw_data_path: "data/raw/"
+  processed_data_path: "data/processed/"
+  annotations_path: "data/annotations/"
+  knowledge_graph_path: "data/knowledge_graphs/"
+  
+  # Dataset settings
+  datasets:
+    - name: "PTB-XL"
+      path: "data/raw/ptb-xl/"
+      sampling_rate: 500
+      leads: ["I", "II", "III", "aVR", "aVL", "aVF", "V1", "V2", "V3", "V4", "V5", "V6"]
+    - name: "MIT-BIH"
+      path: "data/raw/mit-bih/"
+      sampling_rate: 360
+      leads: ["MLII", "V5"]
+
+# Preprocessing Configuration
+preprocessing:
+  filter:
+    lowpass_cutoff: 40.0
+    highpass_cutoff: 0.5
+    notch_freq: 50.0
+  
+  segmentation:
+    segment_length: 5.0  # seconds
+    overlap: 0.5
+    
+  normalization:
+    method: "z-score"  # "minmax", "z-score", "robust"
+    per_lead: true
+
+# Encoding Configuration
+encoding:
+  symbolic:
+    vocab_size: 1000
+    segment_tokens: 128
+    
+  template:
+    use_medical_terms: true
+    include_measurements: true
+    
+  tokenizer:
+    type: "bpe"  # "bpe", "wordpiece", "sentencepiece"
+    vocab_size: 50000
+
+# Model Configuration
+model:
+  base_model: "gpt-4"
+  fine_tuning:
+    enabled: false
+    learning_rate: 5e-5
+    batch_size: 16
+    epochs: 3
+    
+  prompt_engineering:
+    system_prompt: "You are a medical AI assistant specialized in ECG analysis."
+    few_shot_examples: 5
+    
+  api_keys:
+    openai_key: "${OPENAI_API_KEY}"
+    anthropic_key: "${ANTHROPIC_API_KEY}"
+    google_key: "${GOOGLE_API_KEY}"
+
+# RAG Configuration
+rag:
+  retrieval:
+    top_k: 5
+    similarity_threshold: 0.7
+    
+  knowledge_graph:
+    enabled: true
+    entities: ["conditions", "symptoms", "measurements", "treatments"]
+    
+  vector_store:
+    type: "faiss"  # "faiss", "chromadb", "pinecone"
+    embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+    dimension: 384
+
+# Evaluation Configuration
+evaluation:
+  metrics:
+    - "accuracy"
+    - "precision"
+    - "recall"
+    - "f1_score"
+    - "auc_roc"
+    - "confusion_matrix"
+    
+  cross_validation:
+    enabled: true
+    folds: 5
+    stratified: true
+    
+  benchmarks:
+    - "PTB-XL"
+    - "MIT-BIH"
+    - "PhysioNet"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/ecg_llm.log"
+  
+  wandb:
+    enabled: true
+    project: "ecg-llm-diagnosis"
+    entity: "your-username"
+
+# Experiment Configuration
+experiment:
+  name: "baseline"
+  description: "Baseline ECG-LLM experiment"
+  output_dir: "experiments/baseline/"
+  
+  reproducibility:
+    seed: 42
+    deterministic: true
